@@ -1,115 +1,200 @@
-# 🏆 Teste Backend
+# 🎭 Sistema de Faturas para Companhia de Teatro
 
-![Aiko](img/logo.png)
+> Um sistema para calcular faturas de apresentações teatrais, com suporte a múltiplos gêneros de peças e formatos de extrato.
 
-Este teste tem como objetivo avaliar suas habilidades em refatoração de código, design de software e implementação de novas funcionalidades em uma aplicação backend. A proposta envolve trabalhar em um sistema já existente, melhorando sua testabilidade, adicionando suporte a novos requisitos e garantindo a confiabilidade da solução por meio de testes unitários. Além disso, a adoção de boas práticas de arquitetura e desenvolvimento será um diferencial.
+## 📜 Sobre o Projeto
 
-## 📜 Apresentação e estado atual da aplicação
+Este projeto implementa um sistema para gerar extratos de faturas para uma companhia de teatro. A companhia é contratada para realizar apresentações e cobra com base no número de linhas de cada peça, tamanho da plateia e gênero da peça.
 
-Essa aplicação é usada por uma companhia de teatro para gerar extratos
-impressos a partir das faturas de seus clientes.
+### ✨ Funcionalidades
 
-A companhia é contratada pelos clientes para múltiplas apresentações e a
-cobrança é feita baseada no número de linhas de cada peça apresentada, no
-tamanho da platéia e no gênero da peça. Atualmente os gêneros trabalhados pela
-companhia são tragédia e comédia.
+- Cálculo de preços para diferentes gêneros de peças (Tragédia, Comédia, Histórica)
+- Cálculo de créditos de fidelização para clientes
+- Geração de extratos em formato texto
+- Geração de extratos em formato XML
+- Arquitetura extensível para adicionar novos gêneros e formatos
 
-Para cada apresentação são também gerados créditos, que são um tipo de
-mecanismo de fidelização que os clientes podem usar para obter descontos em
-futuras apresentações. O total de créditos gerados é também mostrado no
-extrato.
+## 🚀 Como Executar
 
-## ✨ Novas funcionalidades desejadas
+### Pré-requisitos
 
-A companhia de teatro pretende adicionar o gênero histórico ao seu repertório,
-então o software deve ser capaz de calcular os valores e créditos também para
-esse gênero. Provavelmente virão mais gêneros no futuro, então o design deve
-estar pronto para acomodar novos gêneros sem muita dificuldade.
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/download) ou superior
 
-Também desejam que o extrato possa ser gerado como um XML, além do formato
-de texto atualmente suportado. Novamente, é bom que o design facilite que
-futuramente esse extrato seja emitido em novos formatos, pois certamente é uma
-questão de tempo até surgir essa demanda.
+### Comandos Básicos
 
-## 🛠️ Especificação da atividade
+```bash
+# Clone o repositório (caso ainda não tenha)
+git clone <url-do-repositorio>
+cd nome-do-repositorio
 
-Este é um exercício de refatoração. O design inicial da aplicação é pouco
-testável, portanto os únicos testes que a aplicação possui no momento são os
-[ApprovalTests](https://approvaltests.com/) para validar a saída final. É
-esperado que você torne o código mais testável e então adicione testes
-unitários que validem a aplicação de forma mais granular e que dêem segurança
-para futuras refatorações e para o acréscimo das novas funcionalidades.
+# Compilar o projeto
+dotnet build
 
-Também serão avaliados a abordagem para desenvolvimento da solução (Desing 
-Patters, DDD, Solid, etc.) e a arquitetura utilizada (Clean Architecture, Onion
-Architecture, etc.).
+# Executar os testes
+dotnet test
+```
 
-O projeto de testes possui três ApprovalTests.
+## 🔍 Estrutura do Projeto
 
-* O teste TestStatementExampleLegacy, está passando no estado atual do
-  código. Este teste servirá para te dar segurança das primeiras refatorações
-  até que você escreva os testes unitários, mas ao final, com as
-  funcionalidades novas implementadas, este teste se torna obsoleto.
-* O teste TestTextStatementExample está implementado, porém não executa, pois o
-  gênero histórico ainda não está implementado.
-* O teste TestXmlStatementExample não está implementado e deve ser implementado
-  por você e gerar a saída aprovada que está no projeto de testes.
+```
+src/TheatricalPlayersRefactoringKata/
+├── Domain/                    # Camada de domínio
+│   ├── Entities/              # Entidades do domínio (Invoice, Performance, Play)
+│   └── Interfaces/            # Interfaces do domínio (IPriceCalculator)
+├── Services/                  # Serviços da aplicação
+│   └── PriceCalculator.cs     # Implementação do cálculo de preços e créditos
+├── Infrastructure/            # Infraestrutura
+│   └── Formatters/            # Formatadores de extratos (texto, XML)
+└── StatementPrinter.cs        # Classe principal de geração de extratos
 
-O código dos testes pode ser refatorado, desde que a saída continue a
-mesma e os testes continuem cumprindo o mesmo propósito. É esperado que você
-implemente as novas funcionalidades pedidas para que todos os ApprovalTests
-passem.
+tests/                         # Testes automáticos
+├── FormatterTests.cs          # Testes para formatadores
+├── PriceCalculatorTests.cs    # Testes para cálculos de preço
+└── StatementPrinterTests.cs   # Testes de integração
+```
 
-Faça commits com frequência para que sua abordagem de refatoração seja mostrada
-pelo histórico de versões.
+## 📋 Regras de Negócio
 
-## 🚀 Extras (Opcional)
+### Cálculo de Preços
 
-Não é mandatório, mas de maneira opcional os seguintes requisitos poderão ser
-implementados:
+- **Base**: linhas da peça ÷ 10, limitado entre 1000 e 4000 linhas
+- **Tragédia**: valor base (plateia ≤ 30) + 10.00 por cada espectador adicional
+- **Comédia**: valor base + 3.00 por espectador; se plateia > 20, adiciona 100.00 + 5.00 por espectador adicional
+- **Histórica**: combina cálculos de tragédia e comédia
 
-* Implementar processamento assincrono de extratos, os dados devem ser imputados,
-  enfileirados, processados assincronicamente e gerar o XML resultante em um 
-  diretório
-* API rest para expor os métodos para futuras integrações
-  * Expor documentação da API por Swagger
-* Persistencia dos dados em um banco de dados para salvar o extrato com suas
-  respectivas peças
+### Cálculo de Créditos
 
-## 📜 Regras de negócio
+- 1 crédito para cada espectador acima de 30
+- Bônus de 1/5 da plateia (arredondado para baixo) para peças de comédia
 
-* O valor base para a cobrança de todas as peças é o número de linhas da peça
-  dividido por 10
-* O número de linhas da peça considerado para o cálculo do valor base deve ser
-  forçado a estar no intervalo entre 1000 e 4000
-* O valor para uma peça de tragédia é igual ao valor base caso a platéia seja
-  menor ou igual a 30, somando mais 10.00 para cada espectador adicional a
-  esses 30
-* Para uma peça de comédia, o cálculo base é sempre somado a 3.00 por
-  espectador. Além disso, se a platéia for maior que 20, o valor deve ser
-  aumentado em 100.00 e deve se somar mais 5.00 por espectador adicional aos 20
-  de base
-* Todas performances dão 1 crédito para cada espectador acima de 30, não
-  valendo nenhum crédito para uma platéia menor ou igual a 30
-* Existe um bônus de créditos de um quinto da platéia arredondados para baixo,
-  exclusivo para peças de comédia
-* As peças históricas são, por algum motivo, mais complicadas e têm o valor
-  igual à soma dos valores correspondentes a uma peça de tragédia e uma de
-  comédia
-* A estrutura do XML deve seguir como referência a saída aprovada no
-  ApprovalTest correspondente
+## 🧩 Como Estender o Sistema
 
-## 📦 Entrega
+### Adicionar Novo Gênero de Peça
 
-Para realizar a entrega do teste, siga as instruções abaixo:
+1. Adicione o novo gênero no enum `PlayType` em `Domain/Entities/Play.cs`:
 
-1. Fork este repositório e clone-o em sua máquina.
-2. Crie uma branch com o nome `teste/[NOME]`:
-    - `[NOME]`: Seu nome.
-    - Exemplos: `teste/fulano-da-silva`; `teste/beltrano-primeiro-gomes`.
-3. Realize um pull request da sua branch para este repositório.
-* Realize o pull request da sua branch nesse repositório.
-4. Envie um vídeo apresentando a aplicação e a entrega como um todo. O vídeo pode ser hospedado como não listado no YouTube ou compartilhado via Google Drive, e o link deve ser incluído no pull request ou no README do projeto.
+```csharp
+public enum PlayType
+{
+    Tragedy,
+    Comedy,
+    Historical,
+    NovoGenero // Adicione aqui
+}
+```
 
+2. Implemente o cálculo de preço e créditos no `PriceCalculator` em `Services/PriceCalculator.cs`:
 
-📩 **Boa sorte! Estamos ansiosos para ver seu código e sua apresentação!** 🚀
+```csharp
+public decimal CalculatePrice(Performance performance, Play play)
+{
+    // Código existente...
+
+    switch (play.Type)
+    {
+        // Casos existentes...
+        
+        case PlayType.NovoGenero:
+            // Implemente o cálculo para o novo gênero
+            return /* seu cálculo */;
+            
+        default:
+            throw new ArgumentException($"Tipo de peça desconhecido: {play.Type}");
+    }
+}
+
+public int CalculateCredits(Performance performance, Play play)
+{
+    // Código existente...
+    
+    switch (play.Type)
+    {
+        // Casos existentes...
+        
+        case PlayType.NovoGenero:
+            // Implemente o cálculo de créditos para o novo gênero
+            return /* seu cálculo */;
+            
+        default:
+            throw new ArgumentException($"Tipo de peça desconhecido: {play.Type}");
+    }
+}
+```
+
+### Adicionar Novo Formato de Extrato
+
+1. Crie uma nova classe implementando a interface `IStatementFormatter`:
+
+```csharp
+using System.Collections.Generic;
+using TheatricalPlayersRefactoringKata.Domain.Entities;
+
+namespace TheatricalPlayersRefactoringKata.Infrastructure.Formatters
+{
+    public class NovoFormatter : IStatementFormatter
+    {
+        public string FormatStatement(
+            Invoice invoice, 
+            Dictionary<string, Play> plays, 
+            Dictionary<string, decimal> amounts, 
+            Dictionary<string, int> credits, 
+            decimal totalAmount, 
+            int totalCredits)
+        {
+            // Implemente a formatação para o novo formato
+            // ...
+            
+            return resultado;
+        }
+    }
+}
+```
+
+2. Registre o novo formatador no construtor de `StatementPrinter`:
+
+```csharp
+public StatementPrinter()
+{
+    _priceCalculator = new PriceCalculator();
+    _formatters = new Dictionary<string, IStatementFormatter>
+    {
+        { "text", new TextStatementFormatter() },
+        { "xml", new XmlStatementFormatter() },
+        { "novo", new NovoFormatter() } // Adicione aqui
+    };
+}
+```
+
+## 📝 Testes Automatizados
+
+O projeto inclui testes automatizados para garantir o correto funcionamento:
+
+- **Testes unitários**: Validam o comportamento de componentes individuais
+- **Testes de aprovação**: Comparam a saída com resultados aprovados previamente
+
+Para executar todos os testes:
+```bash
+dotnet test
+```
+
+## 📚 Conceitos Aplicados
+
+- **SOLID**: Princípios de design de software
+  - **S**: Responsabilidade Única - cada classe tem uma única responsabilidade
+  - **O**: Aberto-Fechado - código aberto para extensão, fechado para modificação
+  - **D**: Inversão de Dependência - dependemos de abstrações, não de implementações
+
+- **Design Patterns**:
+  - **Strategy**: Usado nos formatadores de extrato
+  - **Factory**: Usado na criação de calculadoras de preço
+
+## 🤝 Contribuindo
+
+1. Crie testes para sua implementação
+2. Siga o estilo de código existente
+3. Mantenha a arquitetura limpa e organizada
+4. Atualize a documentação quando necessário
+
+---
+
+Projeto desenvolvido como parte de um exercício de refatoração e implementação de novas funcionalidades. 
